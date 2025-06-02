@@ -1,5 +1,8 @@
 #include "globals.h"
+// #include "tinyml.h"
+#include "irqhandler.h"
+#include "bleServerHub.h"
+#include "bleData.h"
+#include "globals.h"
 
 void initTimer();
-void initTimer2();
-bool calculateSlope(int16_t data[], int16_t threshold, int duration);

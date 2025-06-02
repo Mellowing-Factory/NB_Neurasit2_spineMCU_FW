@@ -16,6 +16,8 @@ String userID = "";
 
 bool bleConnected = false;
 
+uint8_t weight = 70;
+
 /**  None of these are required as they will be handled by the library with defaults. **
  **                       Remove as you see fit for your needs                        */
 class ServerCallbacks: public NimBLEServerCallbacks {
@@ -72,6 +74,7 @@ class DataReceivedCallbacks: public NimBLECharacteristicCallbacks {
                 case HEAD_INIT_HUB_CONNECTING: {
                     printf("BLE: HEAD_INIT_HUB_CONNECTING\n");
                     send_thing_name_to_phone();
+                    getWeight(value[1]);
                     send_confirm_to_phone(value[0], DEVICE_SUCCESS);
                     bleConnected = true;
                     break;
@@ -250,6 +253,18 @@ void stream_data_to_phone(int16_t val0, int16_t val1, int16_t val2, int16_t val3
     // printf("Sent saved data of size %d to phone\n", bledata.getSize());
 }
 
+void send_LF_BR_EE_ble(uint8_t lumbarFlexion, uint8_t breathingRate, uint8_t energyExpenditure) {
+    bledata.reset();
+    bledata.addByte(0xFF); 
+    bledata.addByte(0xFF); 
+    bledata.addByte(0xFF); 
+    bledata.addByte(lumbarFlexion);
+    bledata.addByte(breathingRate);
+    bledata.addByte(energyExpenditure);
+    pTxCharacteristic->setValue(bledata.getBuffer(), bledata.getSize());
+    pTxCharacteristic->notify();
+}
+
 void send_saved_data_to_phone(uint8_t predResult, int16_t TOF_buffer[]) {
     bledata.reset();
     bledata.addByte(0xFF); 
@@ -286,4 +301,8 @@ void send_confirm_to_phone(byte flag, byte data) {
     bledata.addByte(data);
     pTxCharacteristic->setValue(bledata.getBuffer(), bledata.getSize());
     pTxCharacteristic->notify();
+}
+
+void getWeight(byte data) {
+    weight = (uint8_t)data;
 }

@@ -33,15 +33,15 @@
 //-------------------------------
 
 // model config---------------------
-#define MODEL_NUMBER "WF-SUIT-001"
-#define BLE_ADVERTISE_NAME "WF-SUIT"
+#define MODEL_NUMBER "WF-VALIDATION-BOARD"
+#define BLE_ADVERTISE_NAME "WF-VALIDATION"
 //------------------------------- 
 
-#define ROW_WISE_FLATTENING
-// #define PRINT_PREDICTION_DATA
-#define ADJUST_TINYML_PREDICTION
+// #define ROW_WISE_FLATTENING
+// // #define PRINT_PREDICTION_DATA
+// #define ADJUST_TINYML_PREDICTION
 
-// #define ACCEL
+#define ACCEL
 
 
 /*
@@ -54,24 +54,15 @@
 */
 #define LED_PIN_GR     uint8_t(5)   // Green LED
 #define LED_PIN_BL     uint8_t(19)  // Blue LED
-#define BUTTON_RST_PIN uint8_t(23)
-#define BUTTON_VIB_PIN uint8_t(13)
-#define M1_PIN         uint8_t(25)
-#define M2_PIN         uint8_t(33)
-#define M3_PIN         uint8_t(32)
-#define DAC_PIN        uint8_t(26)  // ESP32 DAC PIN GPIO 25, 26
-#define I2S_WS_PIN     uint8_t(12)  // Word Select
-#define I2S_SD_PIN     uint8_t(14)  // Serial Data
-#define I2S_SCK_PIN    uint8_t(27)  // Serial Continuous Clock
+#define MOSI_PIN 5
+#define MISO_PIN 3
+#define SCLK_PIN 6
+#define CS_PIN   9
+#define ICM_INT1 10
+#define ICM_INT2 11
 
-#define SDA2_PIN 17
-#define SCL2_PIN 18
-
-#define SDA_PIN 42
-#define SCL_PIN 2
-
-#define SLAVE_RX 14
-#define SLAVE_TX 12
+#define SDA2_PIN 20
+#define SCL2_PIN 21
 
 /*
     Timer Configurations 
@@ -430,25 +421,13 @@ void initAllSensors();
 #include <ESP32Time.h>
 
 extern configData_t *cfg;
-extern Ads_message_t *adsBuffers;
 
 extern QueueHandle_t taskQueue;
-extern QueueHandle_t adsTestQueue;
 
 extern TaskHandle_t irqHandlerTask; // sendData, Button
 extern TaskHandle_t TaskData_h;
 
-extern TaskHandle_t TaskAds1_h;
-extern TaskHandle_t TaskAds2_h;
-extern TaskHandle_t TaskAds3_h;
-extern TaskHandle_t TaskAds4_h;
-extern TaskHandle_t TaskImu0_h;
-extern TaskHandle_t TaskImu1_h;
-extern TaskHandle_t TaskImu2_h;
-extern TaskHandle_t TaskImu3_h;
-extern TaskHandle_t TaskImu4_h;
-extern TaskHandle_t TaskTof_h;
-extern TaskHandle_t TasUartMaster_h;
+extern TaskHandle_t TaskUartMaster_h;
 extern TaskHandle_t TaskTimer_h;
 extern TaskHandle_t TaskTimer2_h;
 extern TaskHandle_t TaskBle_h;

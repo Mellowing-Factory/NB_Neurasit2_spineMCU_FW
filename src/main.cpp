@@ -18,7 +18,6 @@
 #include <SPI.h>
 
 #include "timer.h"
-#include "uartMaster.h"
 
 #include "irqhandler.h"
 #include "mallocator.h"
@@ -27,19 +26,21 @@
 #include "bleServerHub.h"
 #include <Preferences.h>
 #include "allSensors.h"
+#include "customAlgorithms.h"
 
 static const char TAG[] = __FILE__;
 
 TaskHandle_t irqHandlerTask = NULL;
 TaskHandle_t TaskBle_h = NULL;
 TaskHandle_t TaskData_h = NULL;
-TaskHandle_t TasUartMaster_h = NULL;
 TaskHandle_t TaskTimer_h = NULL;
 TaskHandle_t TaskTimer2_h = NULL;
 TaskHandle_t TaskSensors_h = NULL;
 
 All_data_t allData; 
 BleDataConvert bledata;
+
+Kalman_t kalman;
 
 configData_t *cfg;
 
@@ -57,13 +58,6 @@ void makeThingName() {
 
 void initData() {
     cfg = ALLOCATION(configData_t, 1);
-
-    dataBuffers = ALLOCATION(Data_message_t, ADS_BUFFER_NUM);
-    adsBuffers = ALLOCATION(Ads_message_t, ADS_BUFFER_NUM);
-    for (int loop = 0; loop < ADS_BUFFER_NUM; loop++) {
-    	memset(&adsBuffers[loop], 0, sizeof(Ads_message_t));
-    }
-
 	ESP_LOGI(TAG, "Data initialized...");
 }
 
@@ -142,6 +136,8 @@ void setup() {
     initBleServer();
 	
 	delay(100);
+
+	initKalman(&kalman);
 
 	vTaskDelete(NULL);
 }

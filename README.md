@@ -1,5 +1,11 @@
-# Withforce suit ESP32 Master
+# Withforce Lumbar Flexion, Breathing Rate, Energy Expenditure Validation module
 
-withforce suit is composed of 2 ESP32 connected to multiple modules, and connected to each other by I2C
+during bluetooth connection initation, the PC must send weight as a uint8_t on the second byte of the data (for EE calculation)
 
-One ESP32 (this one) acts as a master, while the other one acts as a slave, sending data from its connected modules when requested by the master
+1) lumbar flexion with Kalman filter and 30 degrees threshold
+2) breathing rate from FSR sensor with 30s buffer
+3) energey expenditure from lumbar flexion + step count (from IMU pedometer)
+
+4) ADS data is buffered 30s
+
+5) data is sent every 30s via bluetooth

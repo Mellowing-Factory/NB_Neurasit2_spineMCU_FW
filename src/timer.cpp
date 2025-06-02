@@ -1,71 +1,71 @@
 #include "timer.h"
-#include "tinyml.h"
-#include "irqhandler.h"
-#include "bleServerHub.h"
-#include "bleData.h"
-#include "globals.h"
+
 
 static const char TAG[] = __FILE__;
 
-uint8_t sendBufferId = 0;
-uint8_t processBufferId = 0;
-
-int16_t sensor_data_buffer[40];
-uint8_t sensor_buffer_index = 0;
-
-extern All_data_t allData;
-extern BleDataConvert bledata;
-extern PredictionDataClass predictionData;
+// extern PredictionDataClass predictionData;
 extern bool startTransmission;
 extern bool bleConnected;
+extern uint8_t breathingRate;
+extern uint8_t tilt_count;
+extern uint8_t walkTimeSec;
+extern uint8_t weight;
 
 /* Interrupt for setting sampling rate */
-volatile int interruptCounter;
-volatile int interrupt2Counter;
 hw_timer_t * timer = NULL;
-hw_timer_t * timer2 = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-portMUX_TYPE timer2Mux = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE timerMux2 = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE timerMux3 = portMUX_INITIALIZER_UNLOCKED;
+volatile int interruptCounter;
+volatile int interruptCounter2;
+volatile int interruptCounter3;
 
-uint16_t predictionBufferIndex = 0;
-uint8_t predictionResult = 0;
+hw_timer_t * timer2 = NULL;
+portMUX_TYPE timer2Mux = portMUX_INITIALIZER_UNLOCKED;
+volatile int thirtySecondsCounter;
+
+
 
 void IRAM_ATTR onTimer() {
     portENTER_CRITICAL_ISR(&timerMux);
     interruptCounter++;
     portEXIT_CRITICAL_ISR(&timerMux);
-    // Serial.println("interrupt generated");
+    portENTER_CRITICAL_ISR(&timerMux2);
+    interruptCounter2++;
+    portEXIT_CRITICAL_ISR(&timerMux2);
+    portENTER_CRITICAL_ISR(&timerMux3);
+    interruptCounter3++;
+    portEXIT_CRITICAL_ISR(&timerMux3);
+}
+void IRAM_ATTR onTimer2() {
+    portENTER_CRITICAL_ISR(&timer2Mux);
+    thirtySecondsCounter++;
+    portEXIT_CRITICAL_ISR(&timer2Mux);
 }
 
-bool calculateSlope(int16_t data[], int16_t threshold, int duration) {
-    bool prediction = false;
-    int16_t slope = 0;
-    for (int i = BUFFER_LEN-1-duration; i < BUFFER_LEN-1; i++) {
-        slope += data[i+1]-data[i];
-        Serial.printf("d_i+1 - d_i: %d\n", data[i+1]-data[i]);
-    }
-    slope /= duration;
-    if (slope >= threshold) {
-        prediction = true;
-    }
-    Serial.printf("slope: %d\n", slope);
-
-    return prediction;
-}
-
-int dummyCounter = 0;
-int dummyCounter2 = 0;
 void timerHandler(void *pvParameters) {
 
     while (1) {
-        if (interruptCounter > 0) {
-            portENTER_CRITICAL(&timerMux);
-            interruptCounter--;
-            portEXIT_CRITICAL(&timerMux);
+        // if (interruptCounter > 0) {
+        //     portENTER_CRITICAL(&timerMux);
+        //     interruptCounter--;
+        //     portEXIT_CRITICAL(&timerMux);
+        //     if (bleConnected) {
+        //         stream_data_to_phone(allData.M_ads1, allData.M_gyro1[0], allData.M_gyro1[1], allData.M_gyro1[2]);
+        //         Serial.printf("%d, %d, %d, %d\n", allData.M_ads1, allData.M_gyro1[0], allData.M_gyro1[1], allData.M_gyro1[2]);
+        //         // Serial.printf("%d, %d, %d, %d\n", allData.M_ads3, allData.M_gyro3[0], allData.M_gyro3[1], allData.M_gyro3[2]);
+        //     }
+        // }
+        if (thirtySecondsCounter > 0) {
+            portENTER_CRITICAL(&timer2Mux);
+            thirtySecondsCounter--;
+            portEXIT_CRITICAL(&timer2Mux);
             if (bleConnected) {
-                stream_data_to_phone(allData.M_ads1, allData.M_gyro1[0], allData.M_gyro1[1], allData.M_gyro1[2]);
-                Serial.printf("%d, %d, %d, %d\n", allData.M_ads1, allData.M_gyro1[0], allData.M_gyro1[1], allData.M_gyro1[2]);
-                // Serial.printf("%d, %d, %d, %d\n", allData.M_ads3, allData.M_gyro3[0], allData.M_gyro3[1], allData.M_gyro3[2]);
+                float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f; 
+                uint8_t energyKcal = (uint8_t)(energyExpenditure + 0.5f); // round to nearest integer
+                send_LF_BR_EE_ble(tilt_count, breathingRate, energyKcal);
+                tilt_count = 0;      
+                walkTimeSec = 0;       
             }
         }
         vTaskDelay(25 / portTICK_PERIOD_MS);
@@ -82,7 +82,11 @@ void initTimer() {
     timerAttachInterrupt(timer, &onTimer, true);
     timerAlarmWrite(timer, 100000, true);
     timerAlarmEnable(timer);
-  
+    timer2 = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer2, &onTimer2, true);
+    timerAlarmWrite(timer2, 5000000, true);
+    timerAlarmEnable(timer2);
+
     xTaskCreatePinnedToCore(timerHandler,
                             "timerHandler",
                             TIMER_TASK_STACK,

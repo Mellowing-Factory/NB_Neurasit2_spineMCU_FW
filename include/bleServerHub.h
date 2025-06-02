@@ -33,10 +33,12 @@ void TaskBle(void *pvParameters);
 void deleteTaskBle();
 void initBleServer();
 
+void send_LF_BR_EE_ble(uint8_t lumbarFlexion, uint8_t breathingRate, uint8_t energyExpenditure);
 void stream_data_to_phone(int16_t val0, int16_t val1, int16_t val2, int16_t val3);
 void send_saved_data_to_phone(uint8_t predResult, int16_t TOF_buffer[]);
 void send_saved_data_to_phone2(int16_t data_buffer[]);
 
+void getWeight(byte data);
 
 void send_thing_name_to_phone();
 void send_confirm_to_phone(byte flag, byte data);
