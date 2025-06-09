@@ -27,6 +27,8 @@
 #include <Preferences.h>
 #include "allSensors.h"
 #include "customAlgorithms.h"
+#include <esp_timer.h>
+#include "esp_sleep.h"
 
 static const char TAG[] = __FILE__;
 

@@ -10,6 +10,7 @@ extern uint8_t breathingRate;
 extern uint8_t tilt_count;
 extern uint8_t walkTimeSec;
 extern uint8_t weight;
+extern bool isMoving;
 
 /* Interrupt for setting sampling rate */
 hw_timer_t * timer = NULL;

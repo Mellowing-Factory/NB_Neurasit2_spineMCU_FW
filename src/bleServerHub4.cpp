@@ -124,8 +124,8 @@ void createBLEServer(void) {
     printf("Starting NimBLE Server\n");
 
     /** sets device name */
-    NimBLEDevice::init("WF_tinyML");
-    NimBLEDevice::setMTU(350);
+    NimBLEDevice::init(BLE_ADVERTISE_NAME);
+    NimBLEDevice::setMTU(512);
 
     pServer = NimBLEDevice::createServer();
     pServer->setCallbacks(new ServerCallbacks());

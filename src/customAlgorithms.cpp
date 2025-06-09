@@ -52,7 +52,6 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
         }
     }
     range = maximum - minimum;
-    printf("max %d, min %d, range %d, range_uint8: %u\n", maximum, minimum, range, convert_int16_to_uint8(range));
     
 // Creating a buffer to store the distances (maximum 30 per minute)
     uint8_t cyclesDistances[30];
@@ -90,6 +89,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
         breathingRate = 60/(medianDistance/dummyHz);
     }
 
+    printf("max %d, min %d, range %d, range_uint8: %u\n", maximum, minimum, range, convert_int16_to_uint8(range));
     printf("Breathing rate: %.2f\n", breathingRate);
 
     return (uint8_t)breathingRate;

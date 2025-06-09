@@ -7,6 +7,7 @@
 #include <SPI.h>
 #include <Adafruit_ADS1X15.h>
 #include "customAlgorithms.h"
+#include <math.h>
 
 
 #define ADS1115_ADDRESS0 (0x48) ///< 1001 000 (ADDR = GND)
@@ -31,6 +32,8 @@ void initAllSensors();
 
 void measureImu1();
 void measureAds1();
+
+void initDeepSleepMode();
 
 
 #endif

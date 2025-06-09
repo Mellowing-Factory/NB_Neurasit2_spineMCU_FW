@@ -27,6 +27,8 @@ uint8_t breathingRate = 0;
 
 uint8_t walkTimeSec = 0;
 
+uint16_t isIdleCounter = 0;
+
 // uint8_t tilt_delay_counter = 0;
 // bool sec_window_passed = false;
 // bool tiltDetected = false;
@@ -120,7 +122,7 @@ void initImu1() {
 
 // NOTE: for some reason ICM_INT1 pin works but not ICM_INT2, i think you can choose to use one or the other
     // Enable interrupt
-    IMU1.enableInterrupt(ICM_INT1, icm_irq_handler);
+    IMU1.enableInterrupt(INT1_PIN, icm_irq_handler);
 
     ESP_LOGI(TAG, "IMU1 initialized...");
 }
@@ -203,6 +205,18 @@ void measureImu1() {
         float accel_z_g = imu_event1.accel[2] / 2048.0f;
         float gyro_y_dps = imu_event1.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
         tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
+        
+        // printf("accelX: %.2f, accelY: %.2f, accelZ: %.2f\n", accel_x_g, accel_y_g, accel_z_g);
+        if (fabs(accel_x_g) + fabs(accel_y_g) + fabs(accel_z_g) < 1.5) {
+            isIdleCounter += 1;
+            if (isIdleCounter > 1800) {
+                initDeepSleepMode();
+            }
+        }
+        else {
+            isIdleCounter = 0;
+        }
+        // printf("%d\n", isIdleCounter);
 
         sec_counter += 1;
         if (sec_counter >= 10) {
@@ -247,4 +261,30 @@ void measureAds1() {
         }
     }
 
+}
+
+void IRAM_ATTR int1_isr() {
+	Serial.println("INT1 pin interrupt generated");
+}
+
+void initDeepSleepMode() {
+    pinMode(INT1_PIN, INPUT_PULLDOWN);
+    int pinState = digitalRead(INT1_PIN);
+    Serial.printf("INT1 pin status: %d\n", pinState);
+    delay(100);
+    int ret1;
+    ret1 = IMU1.startWakeOnMotion(INT1_PIN, int1_isr);
+    Serial.print("IMU start WOM: ");
+    Serial.println(ret1);
+    esp_sleep_enable_ext0_wakeup(INT1_PIN, 1);
+    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
+    delay(100);
+    pinState = digitalRead(INT1_PIN);
+    ESP_LOGI(TAG, "INT1 pin status: %d", pinState);
+    Serial.println(" ");
+	ESP_LOGI(TAG, "Going to deep sleep");
+    Serial.println(" ");
+ 
+    delay(100);
+    esp_deep_sleep_start();
 }

@@ -58,8 +58,7 @@
 #define MISO_PIN 3
 #define SCLK_PIN 6
 #define CS_PIN   9
-#define ICM_INT1 10
-#define ICM_INT2 11
+#define INT1_PIN gpio_num_t(10)
 
 #define SDA2_PIN 12
 #define SCL2_PIN 11
