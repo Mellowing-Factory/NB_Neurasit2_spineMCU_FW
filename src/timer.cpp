@@ -24,22 +24,21 @@ hw_timer_t * timer2 = NULL;
 portMUX_TYPE timer2Mux = portMUX_INITIALIZER_UNLOCKED;
 volatile int thirtySecondsCounter;
 
-
-
 void IRAM_ATTR onTimer() {
     portENTER_CRITICAL_ISR(&timerMux);
-    interruptCounter++;
+    interruptCounter++;     // NOTHING
     portEXIT_CRITICAL_ISR(&timerMux);
     portENTER_CRITICAL_ISR(&timerMux2);
-    interruptCounter2++;
+    interruptCounter2++;     // IMU MEASUREMENTS
     portEXIT_CRITICAL_ISR(&timerMux2);
     portENTER_CRITICAL_ISR(&timerMux3);
-    interruptCounter3++;
+    interruptCounter3++;     // ADS MEASUREMENTS
     portEXIT_CRITICAL_ISR(&timerMux3);
+    // Serial.println("100ms passed");
 }
 void IRAM_ATTR onTimer2() {
     portENTER_CRITICAL_ISR(&timer2Mux);
-    thirtySecondsCounter++;
+    thirtySecondsCounter++;     // DATA SEND TIMER
     portEXIT_CRITICAL_ISR(&timer2Mux);
 }
 
@@ -67,6 +66,7 @@ void timerHandler(void *pvParameters) {
                 tilt_count = 0;      
                 walkTimeSec = 0;       
             }
+            Serial.println("30 seconds passed");
         }
         vTaskDelay(25 / portTICK_PERIOD_MS);
     }
@@ -82,9 +82,9 @@ void initTimer() {
     timerAttachInterrupt(timer, &onTimer, true);
     timerAlarmWrite(timer, 100000, true);
     timerAlarmEnable(timer);
-    timer2 = timerBegin(0, 80, true);
+    timer2 = timerBegin(1, 80, true);
     timerAttachInterrupt(timer2, &onTimer2, true);
-    timerAlarmWrite(timer2, 5000000, true);
+    timerAlarmWrite(timer2, 30000000, true);
     timerAlarmEnable(timer2);
 
     xTaskCreatePinnedToCore(timerHandler,

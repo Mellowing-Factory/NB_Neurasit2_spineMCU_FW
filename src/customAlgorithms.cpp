@@ -13,6 +13,7 @@ static const char TAG[] = __FILE__;
 
 
 uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
+    
 
     int dummyHz = ADS_SAMPLING_HZ;
 
@@ -51,7 +52,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
         }
     }
     range = maximum - minimum;
-    // Serial.printf("max %d, min %d, range %d, range_uint8: %u\n", maximum, minimum, range, convert_int16_to_uint8(range));
+    printf("max %d, min %d, range %d, range_uint8: %u\n", maximum, minimum, range, convert_int16_to_uint8(range));
     
 // Creating a buffer to store the distances (maximum 30 per minute)
     uint8_t cyclesDistances[30];
@@ -84,7 +85,12 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
     qsort(cyclesDistances2, lt_length, sizeof(cyclesDistances2[0]), sort_desc);
 
     float medianDistance = cyclesDistances2[int(cyclesCount/2)];
-    float breathingRate = 60/(medianDistance/dummyHz);
+    float breathingRate = 0; //60/(medianDistance/dummyHz);
+    if (medianDistance > 20) {
+        breathingRate = 60/(medianDistance/dummyHz);
+    }
+
+    printf("Breathing rate: %.2f\n", breathingRate);
 
     return (uint8_t)breathingRate;
 }

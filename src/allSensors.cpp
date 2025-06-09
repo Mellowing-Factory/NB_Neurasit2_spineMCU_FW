@@ -4,7 +4,8 @@ static const char TAG[] = __FILE__;
 
 extern All_data_t allData; 
 Adafruit_ADS1115 ads1; // left strap front
-ICM42670 IMU1(Wire1, 0); // left strap front
+extern SPIClass mySPI;
+ICM42670 IMU1(mySPI, CS_PIN); // left strap front
 
 bool imu_valid1 = false;
 int handler_delay = 1000/GYRO_SR;
@@ -87,12 +88,12 @@ void initImu1() {
     // Serial.println("1111111 ");
     // Initializing the ICM42670P
     if (ret1 != 0) {
-        Serial.print("IMU1 ICM42670P I2C1 initialization failed: ");
+        Serial.print("IMU1 ICM42670P SPI initialization failed: ");
         Serial.println(ret1);
         while(ret1 != 0) {
             ret1 = IMU1.begin();
             if (ret1 != 0) {
-                Serial.print("IMU1 ICM42670P I2C1 initialization failed: ");
+                Serial.print("IMU1 ICM42670P SPI initialization failed: ");
             }
             else {
                 break;
@@ -221,7 +222,7 @@ void measureImu1() {
 
 void measureAds1() {
 #ifndef BLE_TEST        
-    allData.M_ads1 = ads1.continuous_readADC_SingleEnded(0);
+    allData.M_ads1 = ads1.continuous_readADC_SingleEnded(2);
 #else
     allData.M_ads1 = ble_test_int16t_value2;
     ble_test_int16t_value2 += 256;
@@ -242,6 +243,7 @@ void measureAds1() {
             }
             adsIndex -= 1;
             breathingRate = calculateBR(adsBuffer);
+
         }
     }
 

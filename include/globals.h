@@ -61,8 +61,8 @@
 #define ICM_INT1 10
 #define ICM_INT2 11
 
-#define SDA2_PIN 20
-#define SCL2_PIN 21
+#define SDA2_PIN 12
+#define SCL2_PIN 11
 
 /*
     Timer Configurations 

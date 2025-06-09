@@ -46,6 +46,8 @@ configData_t *cfg;
 
 extern Preferences preferences;
 
+SPIClass mySPI(SPI);
+
 void makeThingName() {
     byte mac[6];
     byte macBle[6];
@@ -116,6 +118,17 @@ void setup() {
 		Serial.println("done\n");
 	}
 	
+    pinMode(CS_PIN, OUTPUT);
+    digitalWrite(CS_PIN, HIGH); // Set CS HIGH initially
+
+    mySPI.begin(SCLK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
+    // mySPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0)); // Mode 0 with 1 MHz
+    digitalWrite(CS_PIN, LOW);
+    mySPI.transfer(0x75 | 0x80); // 0x80 sets MSB for a read operation
+    uint8_t who_am_i = mySPI.transfer(0x00);
+    digitalWrite(CS_PIN, HIGH);
+    Serial.print("WHO_AM_I: ");
+    Serial.println(who_am_i, HEX);
 
 	delay(100);
 	
