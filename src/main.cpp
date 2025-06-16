@@ -1,14 +1,3 @@
-/* Developer Note
-(cshin)
-- Test Code: Code to test out new code (to be committed or deleted)
-- Test Temp: Temporary code just for testing (comment or delete prior to commit)
-- Test Silenced: Existing code that was silenced for testing (uncomment or delete prior to commit)
-
-(cshin)
-- Added sendWakeMsg() to send reset_reason to AWS server (20230918)
-- Added previous_reset_reason to Wake Message (20230921)
-*/
-
 #include "globals.h"
 #include <time.h>
 #include <stdlib.h>
@@ -29,6 +18,8 @@
 #include "customAlgorithms.h"
 #include <esp_timer.h>
 #include "esp_sleep.h"
+#include "led.h"
+
 
 static const char TAG[] = __FILE__;
 
@@ -153,6 +144,10 @@ void setup() {
 	delay(100);
 
 	initKalman(&kalman);
+
+	initLed();
+	// turnLedOn(LED_PIN_BL);
+	turnLedOn(LED_PIN_GR);
 
 	vTaskDelete(NULL);
 }

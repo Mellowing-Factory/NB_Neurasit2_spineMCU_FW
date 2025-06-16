@@ -52,8 +52,8 @@
 /*
    GPIO pin map
 */
-#define LED_PIN_GR     uint8_t(5)   // Green LED
-#define LED_PIN_BL     uint8_t(19)  // Blue LED
+#define LED_PIN_GR     uint8_t(41)   // Green LED
+// #define LED_PIN_BL     uint8_t(42)  // Blue LED
 #define MOSI_PIN 5
 #define MISO_PIN 3
 #define SCLK_PIN 6

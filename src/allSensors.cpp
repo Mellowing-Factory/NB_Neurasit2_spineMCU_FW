@@ -275,7 +275,7 @@ void measureAds1() {
         // enter deep sleep if the device is idle for more than 10min
         if (max_accel < 1.4 && max_accel-min_accel < 0.05) {
             isIdleCounter += 1;
-            if (isIdleCounter > 30) {
+            if (isIdleCounter > 60) {
                 initDeepSleepMode();
             }
         }
@@ -296,6 +296,7 @@ void IRAM_ATTR int1_isr() {
 }
 
 void initDeepSleepMode() {
+	turnLedOff(LED_PIN_GR);
     pinMode(INT1_PIN, INPUT_PULLDOWN);
     int pinState = digitalRead(INT1_PIN);
     Serial.printf("INT1 pin status: %d\n", pinState);

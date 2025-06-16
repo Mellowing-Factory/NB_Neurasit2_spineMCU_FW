@@ -1,12 +1,3 @@
-/* Developer Note
-(cshin)
-- Test Code: Code to test out new code (to be committed or deleted)
-- Test Temp: Temporary code just for testing (comment or delete prior to commit)
-- Test Silenced: Existing code that was silenced for testing (uncomment or delete prior to commit)
-
-(cshin)
-- deleted IRQ for wake/sleep msg test codes (20230919)
-*/
 
 #include "irqhandler.h"
 #include "resetCheck.h"
