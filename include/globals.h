@@ -156,13 +156,8 @@
 #define DATA_BUFFER_LEN         (TIMER_HZ * DATA_BUFFER_CYCLE_TIME * NUM_SENSORS * 2)
 
 // ADS BUFFERS
-#define ADS_BUFFER_NUM          2
-// NOTE: for some reason sampling rates under 25Hz doesn't work properly - the decoding on the server side fails
-// NOTE: checked sampling rates: 26, 28, 29, 30, 50 - 29 & 30 are too low for RATE_ADS1115_64SPS, results in greater than 15s conversion
-// NOTE: failed sampling rates: 24, 25
-#define ADS_BUFFER_HZ           28      // Frequency of ADS readings (Hz) & ISR frequency. BCG Sampling frequency from ADC in Hz
-#define ADS_BUFFER_CYCLE_TIME   15      // Period of ADS sampling (s)
-#define ADS_BUFFER_LEN          (ADS_BUFFER_HZ * ADS_BUFFER_CYCLE_TIME * 2) // 16bit -> 2X 8bit
+#define ADS_SAMPLING_HZ 10
+#define ADS_BUFFER_LEN  ADS_SAMPLING_HZ*30
 
 #define BLE_DATA_MAXIMUM_SIZE 500
 

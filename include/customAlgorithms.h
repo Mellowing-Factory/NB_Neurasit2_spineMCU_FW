@@ -14,9 +14,6 @@
     #endif
 #endif
 
-#define ADS_SAMPLING_HZ 10
-#define ADS_BUFFER_LEN  ADS_SAMPLING_HZ*30
-
 uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]);  // breathing rate, motion range
 int sort_desc(const void *cmp1, const void *cmp2);
 uint8_t convert_int16_to_uint8(int16_t value);

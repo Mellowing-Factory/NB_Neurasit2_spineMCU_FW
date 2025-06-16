@@ -28,10 +28,12 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
 		smoothedArray[i] = 0;
 	}
     int newIndexCounter = smoothingFactor;
-    // for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
-    //     Serial.printf("%d,", inputArray[i]);
-    // }
-    // Serial.println("");
+    
+    for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
+        Serial.printf("%d,", inputArray[i]);
+    }
+    Serial.println("");
+    
     for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
         maximum = std::max(inputArray[i], maximum);
         minimum = std::min(minimum, inputArray[i]);
@@ -174,5 +176,5 @@ void tilt_calculation(float ax, float ay, float az, float gyro_y) {
         tilted = 0; // Reset state when close to neutral
     }
 
-    printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
+    // printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
 }

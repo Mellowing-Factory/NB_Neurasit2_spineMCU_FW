@@ -29,6 +29,9 @@ uint8_t walkTimeSec = 0;
 
 uint16_t isIdleCounter = 0;
 
+float max_accel = 0;
+float min_accel = 1000000;
+
 // uint8_t tilt_delay_counter = 0;
 // bool sec_window_passed = false;
 // bool tiltDetected = false;
@@ -37,6 +40,7 @@ extern portMUX_TYPE timerMux2;
 extern portMUX_TYPE timerMux3;
 extern volatile int interruptCounter2;
 extern volatile int interruptCounter3;
+int tenSecondCounter = 0;
 
 void IRAM_ATTR icm_irq_handler() {
     // Serial.println("IRQ received!");
@@ -207,16 +211,9 @@ void measureImu1() {
         tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
         
         // printf("accelX: %.2f, accelY: %.2f, accelZ: %.2f\n", accel_x_g, accel_y_g, accel_z_g);
-        if (fabs(accel_x_g) + fabs(accel_y_g) + fabs(accel_z_g) < 1.5) {
-            isIdleCounter += 1;
-            if (isIdleCounter > 1800) {
-                initDeepSleepMode();
-            }
-        }
-        else {
-            isIdleCounter = 0;
-        }
-        // printf("%d\n", isIdleCounter);
+        float sum_accel = fabs(accel_x_g) + fabs(accel_y_g) + fabs(accel_z_g);
+        max_accel = std::max(sum_accel, max_accel);
+        min_accel = std::min(min_accel, sum_accel);
 
         sec_counter += 1;
         if (sec_counter >= 10) {
@@ -231,7 +228,6 @@ void measureImu1() {
             gait_state = 0;
         }
     }
-
 }
 
 void measureAds1() {
@@ -249,16 +245,48 @@ void measureAds1() {
         interruptCounter3--;
         portEXIT_CRITICAL(&timerMux3);
 
-        adsBuffer[adsIndex] = allData.M_ads1;
-        adsIndex += 1;
-        if (adsIndex == ADS_BUFFER_LEN-1) {
+        if (adsIndex == ADS_BUFFER_LEN) {
             for (int i = 0; i < ADS_BUFFER_LEN-1; i++) {
                 adsBuffer[i] = adsBuffer[i+1];
             }
             adsIndex -= 1;
-            breathingRate = calculateBR(adsBuffer);
-
         }
+        adsBuffer[adsIndex] = allData.M_ads1;
+        adsIndex += 1;
+        tenSecondCounter += 1;
+    }
+
+    // calculate breathing rate if user has been stable for more than 10seconds
+    if (tenSecondCounter >= 100) {
+        printf("min accel: %.2f, max accel: %.2f\n", min_accel, max_accel);;
+        // for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+        //     Serial.printf("%d,", adsBuffer[i]);
+        // }
+        // Serial.println("");
+
+        
+        if (max_accel < 2 && max_accel-min_accel >= 0.05 && max_accel-min_accel < 1) {
+            breathingRate = calculateBR(adsBuffer);
+        }
+        else {
+            breathingRate = 0;
+        }
+
+        // enter deep sleep if the device is idle for more than 10min
+        if (max_accel < 1.4 && max_accel-min_accel < 0.05) {
+            isIdleCounter += 1;
+            if (isIdleCounter > 30) {
+                initDeepSleepMode();
+            }
+        }
+        else {
+            isIdleCounter = 0;
+        }
+        // printf("%d\n", isIdleCounter);
+
+        tenSecondCounter = 0;
+        max_accel = 0;
+        min_accel = 1000000;
     }
 
 }
