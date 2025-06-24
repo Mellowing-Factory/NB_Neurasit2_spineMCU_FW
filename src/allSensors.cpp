@@ -72,7 +72,7 @@ void allSensorsHandler(void *pvParameters) {
 
 void initAllSensors() {
 
-    setupBreathingRateBuffer();
+    setupBreathingRateBuffer(breathingRateBuffer);
 
     delay(75);
 	initAds1();
@@ -276,10 +276,22 @@ void measureAds1() {
         else {
             breathingRate = 0;
         }
-        addBreathingRate(breathingRate);
-        breathingRateSmoothed = getAverageBreathingRate();
+        addBreathingRate(breathingRate, breathingRateBuffer);
+        breathingRateSmoothed = getAverageBreathingRate(breathingRateBuffer);
+        // Serial.print("Smoothed Breathing Rate: ");
+        // Serial.println(breathingRateSmoothed);
 
-        // enter deep sleep if the device is idle for more than 10min
+        // Serial.print("Current Buffer: [");
+        // for (size_t i = 0; i < breathingRateBuffer.size(); ++i) {
+        //     Serial.print(breathingRateBuffer[i]);
+        //     if (i < breathingRateBuffer.size() - 1) {
+        //         Serial.print(", ");
+        //     }
+        // }
+        // Serial.println("]");
+
+
+        // enter deep sleep if the device is idle for more than 10min  
         if (max_accel < 1.4 && max_accel-min_accel < 0.05) {
             isIdleCounter += 1;
             if (isIdleCounter > 60) {

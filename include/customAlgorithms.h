@@ -31,8 +31,8 @@ typedef struct {
 
 void initKalman(Kalman_t* kf);
 
-void setupBreathingRateBuffer();
-void addBreathingRate(uint8_t newRate);
-uint8_t getAverageBreathingRate(std::vector<uint8_t> breathingRateBuffer);
+void setupBreathingRateBuffer(std::vector<uint8_t>& breathingRateBuffer);
+void addBreathingRate(uint8_t newRate, std::vector<uint8_t>& breathingRateBuffer);
+uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer);
 
 #endif

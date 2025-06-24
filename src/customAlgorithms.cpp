@@ -96,7 +96,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
     printf("max %d, min %d, range %d, range_uint8: %u\n", maximum, minimum, range, convert_int16_to_uint8(range));
     printf("Breathing rate: %.2f\n", breathingRate);
 
-    return (uint8_t)breathingRate;
+    return (uint8_t)(breathingRate + 0.5f);
 }
 
 // qsort requires you to create a sort function
@@ -178,10 +178,10 @@ void tilt_calculation(float ax, float ay, float az, float gyro_y) {
         tilted = 0; // Reset state when close to neutral
     }
 
-    printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
+    // printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
 }
 
-void setupBreathingRateBuffer() {
+void setupBreathingRateBuffer(std::vector<uint8_t>& breathingRateBuffer) {
     breathingRateBuffer.reserve(BR_BUFFER_SIZE); // Pre-allocate memory
     // Optionally, fill with zeros initially
     for (int i = 0; i < BR_BUFFER_SIZE; ++i) {
@@ -189,7 +189,7 @@ void setupBreathingRateBuffer() {
     }
 }
 
-void addBreathingRate(uint8_t newRate) {
+void addBreathingRate(uint8_t newRate, std::vector<uint8_t>& breathingRateBuffer) {
     // If the buffer is full, remove the oldest element
     if (breathingRateBuffer.size() >= BR_BUFFER_SIZE) {
         breathingRateBuffer.erase(breathingRateBuffer.begin()); // Remove the first element
@@ -198,7 +198,7 @@ void addBreathingRate(uint8_t newRate) {
     breathingRateBuffer.push_back(newRate);
 }
 
-uint8_t getAverageBreathingRate(std::vector<uint8_t> breathingRateBuffer) {
+uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer) {
     uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
     int count = 0;
 
