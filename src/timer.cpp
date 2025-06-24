@@ -24,7 +24,7 @@ volatile int interruptCounter3;
 
 hw_timer_t * timer2 = NULL;
 portMUX_TYPE timer2Mux = portMUX_INITIALIZER_UNLOCKED;
-volatile int thirtySecondsCounter;
+volatile int sixtySecondsCounter;
 
 void IRAM_ATTR onTimer() {
     portENTER_CRITICAL_ISR(&timerMux);
@@ -40,7 +40,7 @@ void IRAM_ATTR onTimer() {
 }
 void IRAM_ATTR onTimer2() {
     portENTER_CRITICAL_ISR(&timer2Mux);
-    thirtySecondsCounter++;     // DATA SEND TIMER
+    sixtySecondsCounter++;     // DATA SEND TIMER
     portEXIT_CRITICAL_ISR(&timer2Mux);
 }
 
@@ -57,9 +57,9 @@ void timerHandler(void *pvParameters) {
         //         // Serial.printf("%d, %d, %d, %d\n", allData.M_ads3, allData.M_gyro3[0], allData.M_gyro3[1], allData.M_gyro3[2]);
         //     }
         // }
-        if (thirtySecondsCounter > 0) {
+        if (sixtySecondsCounter > 0) {
             portENTER_CRITICAL(&timer2Mux);
-            thirtySecondsCounter--;
+            sixtySecondsCounter--;
             portEXIT_CRITICAL(&timer2Mux);
             if (bleConnected) {
                 float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f;
@@ -75,6 +75,7 @@ void timerHandler(void *pvParameters) {
                 
                 uint8_t energyKcal = (uint8_t)(energyExpenditure + 0.5f); // round to nearest integer
                 send_LF_BR_EE_ble(tilt_count, breathingRateSmoothed, energyKcal);
+                Serial.printf("Sending data tilt count: %u, breathing rate: %u, energy expenditure: %u\n", tilt_count, breathingRateSmoothed, energyKcal);
                 tilt_count = 0;      
                 walkTimeSec = 0;       
             }
@@ -96,7 +97,7 @@ void initTimer() {
     timerAlarmEnable(timer);
     timer2 = timerBegin(1, 80, true);
     timerAttachInterrupt(timer2, &onTimer2, true);
-    timerAlarmWrite(timer2, 30000000, true);
+    timerAlarmWrite(timer2, 60000000, true);
     timerAlarmEnable(timer2);
 
     xTaskCreatePinnedToCore(timerHandler,

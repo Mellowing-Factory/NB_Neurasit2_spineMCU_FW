@@ -169,12 +169,12 @@ void tilt_calculation(float ax, float ay, float az, float gyro_y) {
     float filtered_pitch = Kalman_Update(&kalman, accel_pitch, gyro_y, dt);
 
     // Threshold logic
-    float TILT_THRESHOLD = 30.0f;
+    float TILT_THRESHOLD = 15.0f;
 
     if (fabs(filtered_pitch) > TILT_THRESHOLD && !tilted) {
         tilt_count++;
         tilted = 1;
-    } else if (fabs(filtered_pitch) < 10.0f) {
+    } else if (fabs(filtered_pitch) < 7.5f) {
         tilted = 0; // Reset state when close to neutral
     }
 

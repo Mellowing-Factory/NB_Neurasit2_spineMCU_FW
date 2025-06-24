@@ -278,8 +278,8 @@ void measureAds1() {
         }
         addBreathingRate(breathingRate, breathingRateBuffer);
         breathingRateSmoothed = getAverageBreathingRate(breathingRateBuffer);
-        // Serial.print("Smoothed Breathing Rate: ");
-        // Serial.println(breathingRateSmoothed);
+        Serial.print("Smoothed Breathing Rate: ");
+        Serial.println(breathingRateSmoothed);
 
         // Serial.print("Current Buffer: [");
         // for (size_t i = 0; i < breathingRateBuffer.size(); ++i) {
