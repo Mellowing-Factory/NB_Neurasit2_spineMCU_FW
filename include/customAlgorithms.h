@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <math.h>
 #include <stdio.h>
-
+#include <vector> // For std::vector
+#include <numeric> // For std::accumulate
 
 /* Test Settings */
 #ifdef DEV_MODE
@@ -13,6 +14,8 @@
         // #define ALGORITHM_TEST
     #endif
 #endif
+
+#define BR_BUFFER_SIZE 6
 
 uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]);  // breathing rate, motion range
 int sort_desc(const void *cmp1, const void *cmp2);
@@ -27,5 +30,9 @@ typedef struct {
 } Kalman_t;
 
 void initKalman(Kalman_t* kf);
+
+void setupBreathingRateBuffer();
+void addBreathingRate(uint8_t newRate);
+uint8_t getAverageBreathingRate(std::vector<uint8_t> breathingRateBuffer);
 
 #endif

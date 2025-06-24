@@ -24,6 +24,9 @@ uint8_t gait_state = 0;
 int16_t adsBuffer[ADS_BUFFER_LEN];
 uint16_t adsIndex = 0;
 uint8_t breathingRate = 0;
+const int BUFFER_SIZE = 6;
+std::vector<uint8_t> breathingRateBuffer;
+uint8_t breathingRateSmoothed;
 
 uint8_t walkTimeSec = 0;
 
@@ -68,6 +71,8 @@ void allSensorsHandler(void *pvParameters) {
 }
 
 void initAllSensors() {
+
+    setupBreathingRateBuffer();
 
     delay(75);
 	initAds1();
@@ -271,6 +276,8 @@ void measureAds1() {
         else {
             breathingRate = 0;
         }
+        addBreathingRate(breathingRate);
+        breathingRateSmoothed = getAverageBreathingRate();
 
         // enter deep sleep if the device is idle for more than 10min
         if (max_accel < 1.4 && max_accel-min_accel < 0.05) {

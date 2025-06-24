@@ -178,5 +178,42 @@ void tilt_calculation(float ax, float ay, float az, float gyro_y) {
         tilted = 0; // Reset state when close to neutral
     }
 
-    // printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
+    printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
+}
+
+void setupBreathingRateBuffer() {
+    breathingRateBuffer.reserve(BR_BUFFER_SIZE); // Pre-allocate memory
+    // Optionally, fill with zeros initially
+    for (int i = 0; i < BR_BUFFER_SIZE; ++i) {
+        breathingRateBuffer.push_back(0);
+    }
+}
+
+void addBreathingRate(uint8_t newRate) {
+    // If the buffer is full, remove the oldest element
+    if (breathingRateBuffer.size() >= BR_BUFFER_SIZE) {
+        breathingRateBuffer.erase(breathingRateBuffer.begin()); // Remove the first element
+    }
+    // Add the new element to the end
+    breathingRateBuffer.push_back(newRate);
+}
+
+uint8_t getAverageBreathingRate(std::vector<uint8_t> breathingRateBuffer) {
+    uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
+    int count = 0;
+
+    for (uint8_t rate : breathingRateBuffer) {
+        if (rate != 0) {
+            sum += rate;
+            count++;
+        }
+    }
+
+    if (count > 0) {
+        float dummy = 0.0f;
+        dummy = static_cast<float>(sum) / count;
+        return (uint8_t)dummy;
+    } else {
+        return 0; // Return 0 if no non-zero values are found
+    }
 }

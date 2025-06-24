@@ -7,6 +7,7 @@ static const char TAG[] = __FILE__;
 extern bool startTransmission;
 extern bool bleConnected;
 extern uint8_t breathingRate;
+extern uint8_t breathingRateSmoothed;
 extern uint8_t tilt_count;
 extern uint8_t walkTimeSec;
 extern uint8_t weight;
@@ -61,9 +62,19 @@ void timerHandler(void *pvParameters) {
             thirtySecondsCounter--;
             portEXIT_CRITICAL(&timer2Mux);
             if (bleConnected) {
-                float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f; 
+                float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f;
+                if (breathingRateSmoothed >= 17 && breathingRateSmoothed < 20) {
+                    energyExpenditure = energyExpenditure * 1.2;
+                }
+                else if (breathingRateSmoothed >= 20 && breathingRateSmoothed < 23) {
+                    energyExpenditure = energyExpenditure * 1.5;
+                }
+                else if (breathingRateSmoothed >= 23) {
+                    energyExpenditure = energyExpenditure * 1.8;
+                }
+                
                 uint8_t energyKcal = (uint8_t)(energyExpenditure + 0.5f); // round to nearest integer
-                send_LF_BR_EE_ble(tilt_count, breathingRate, energyKcal);
+                send_LF_BR_EE_ble(tilt_count, breathingRateSmoothed, energyKcal);
                 tilt_count = 0;      
                 walkTimeSec = 0;       
             }
