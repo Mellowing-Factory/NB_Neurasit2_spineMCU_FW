@@ -62,7 +62,7 @@ void timerHandler(void *pvParameters) {
             sixtySecondsCounter--;
             portEXIT_CRITICAL(&timer2Mux);
             if (bleConnected) {
-                float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f;
+                float energyExpenditure = 0.2*tilt_count + walkTimeSec*3.0f*weight/3600.0f +1.0f;
                 if (breathingRateSmoothed >= 17 && breathingRateSmoothed < 20) {
                     energyExpenditure = energyExpenditure * 1.2;
                 }

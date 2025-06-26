@@ -304,5 +304,9 @@ void send_confirm_to_phone(byte flag, byte data) {
 }
 
 void getWeight(byte data) {
-    weight = (uint8_t)data;
+    uint8_t dummy = (uint8_t)data;
+    if (dummy > 30 && dummy < 130) {
+        weight = dummy;
+    }
+    printf("new weight is: %u\n", weight);
 }

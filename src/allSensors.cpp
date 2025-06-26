@@ -16,7 +16,7 @@ int handler_delay = 1000/GYRO_SR;
 int dummy = 0;
 volatile uint8_t irq_received = 0;
 uint32_t step_count = 0;
-uint8_t sec_counter = 0;
+uint16_t sec_counter = 0;
 float step_cadence = 0;
 const char* activity = "IDLE";
 uint8_t gait_state = 0;
@@ -115,14 +115,14 @@ void initImu1() {
 
 #ifdef ACCEL
     // Accel ODR = 25 Hz and Full Scale Range = 16G
-    IMU1.startAccel(GYRO_SR, 16);
+    IMU1.startAccel(GYRO_SR, ACCEL_FSR);
 #endif
     // Gyro ODR = 25 Hz and Full Scale Range = 2000 dps
     IMU1.startGyro(GYRO_SR, GYRO_FSR);
     // Wait IMU to start
     delay(100);
 
-        // Pedometer enabled
+    // Pedometer enabled
     IMU1.startPedometer();
 
 // // NOTE: native tilt detection has >2s delay, it is used to detect if the devices' position completely changed
@@ -211,9 +211,9 @@ void measureImu1() {
         interruptCounter2--;
         portEXIT_CRITICAL(&timerMux2);
         
-        float accel_x_g = imu_event1.accel[0] / 2048.0f;  // 2g range → 16384 LSB/g
-        float accel_y_g = imu_event1.accel[1] / 2048.0f;  // 16g range -> 2048
-        float accel_z_g = imu_event1.accel[2] / 2048.0f;
+        float accel_x_g = imu_event1.accel[0] / 8192.0f;  // 2g range → 16384 LSB/g
+        float accel_y_g = imu_event1.accel[1] / 8192.0f;  // 16g range -> 2048
+        float accel_z_g = imu_event1.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
         float gyro_y_dps = imu_event1.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
         tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
         
@@ -223,12 +223,12 @@ void measureImu1() {
         min_accel = std::min(min_accel, sum_accel);
 
         sec_counter += 1;
-        if (sec_counter >= 10*5) {
+        if (sec_counter >= 10*STEP_DETECT_PERIOD) {
             if (gait_state == 1) {
-                walkTimeSec += 1*5;
+                walkTimeSec += 1*STEP_DETECT_PERIOD;
             }
             else if (gait_state == 2) { 
-                walkTimeSec += 2*5;
+                walkTimeSec += 2*STEP_DETECT_PERIOD;
             }
             // Serial.printf("walk time seconds: %u\n", walkTimeSec);
             sec_counter = 0;
