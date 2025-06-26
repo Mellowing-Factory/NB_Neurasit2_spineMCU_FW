@@ -29,10 +29,10 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
 	}
     int newIndexCounter = smoothingFactor;
     
-    for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
-        Serial.printf("%d,", inputArray[i]);
-    }
-    Serial.println("");
+    // for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
+    //     Serial.printf("%d,", inputArray[i]);
+    // }
+    // Serial.println("");
     
     for (size_t i=0; i<ADS_BUFFER_LEN; i+=decimationFactor) {
         maximum = std::max(inputArray[i], maximum);
@@ -169,16 +169,17 @@ void tilt_calculation(float ax, float ay, float az, float gyro_y) {
     float filtered_pitch = Kalman_Update(&kalman, accel_pitch, gyro_y, dt);
 
     // Threshold logic
-    float TILT_THRESHOLD = 15.0f;
+    float TILT_THRESHOLD = 60.0f;
 
-    if (fabs(filtered_pitch) > TILT_THRESHOLD && !tilted) {
+    // printf("Kalman Pitch: %.2f\n", filtered_pitch);
+
+    if (fabs(filtered_pitch) < TILT_THRESHOLD && !tilted) {
         tilt_count++;
-        tilted = 1;
-    } else if (fabs(filtered_pitch) < 7.5f) {
+        tilted = 1;    
+        printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
+    } else if (fabs(filtered_pitch) > 80.0f) {
         tilted = 0; // Reset state when close to neutral
     }
-
-    // printf("Tilt: %.2f, Count: %d\n", filtered_pitch, tilt_count);
 }
 
 void setupBreathingRateBuffer(std::vector<uint8_t>& breathingRateBuffer) {

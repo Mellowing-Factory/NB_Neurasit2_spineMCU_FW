@@ -129,6 +129,7 @@ void initImu1() {
 //     // Tilt enabled
 //     IMU1.startTiltDetection();
 
+    delay(100);
 // NOTE: for some reason ICM_INT1 pin works but not ICM_INT2, i think you can choose to use one or the other
     // Enable interrupt
     IMU1.enableInterrupt(INT1_PIN, icm_irq_handler);
@@ -197,11 +198,12 @@ void measureImu1() {
 #endif
     
     if (irq_received) {
+        // Serial.println("IMU IRQ received!");
         irq_received = 0;
         dummy = IMU1.getPedometer(step_count, step_cadence, activity);
         if (strcmp(activity, "WALK") == 0) { gait_state = 1; }
         else if (strcmp(activity, "RUN") == 0) { gait_state = 2; }
-        else { gait_state = 0; }
+        // else { gait_state = 0; }  // this resets gait_state too often and walkTimeSec is not increased
     }
 
     if (interruptCounter2 > 0) {
@@ -221,14 +223,23 @@ void measureImu1() {
         min_accel = std::min(min_accel, sum_accel);
 
         sec_counter += 1;
-        if (sec_counter >= 10) {
+        if (sec_counter >= 10*5) {
             if (gait_state == 1) {
-                walkTimeSec += 1;
+                walkTimeSec += 1*5;
             }
             else if (gait_state == 2) { 
-                walkTimeSec += 2;
+                walkTimeSec += 2*5;
             }
+            // Serial.printf("walk time seconds: %u\n", walkTimeSec);
             sec_counter = 0;
+            Serial.printf("activity: %s", activity);
+            Serial.printf(", state: %u\n", gait_state);
+
+            // by resetting gait_state here, we can guarantee that any walk/run is retained for over a sec
+            // dummy = IMU1.getPedometer(step_count, step_cadence, activity);
+            // if (strcmp(activity, "WALK") == 0) { gait_state = 1; }
+            // else if (strcmp(activity, "RUN") == 0) { gait_state = 2; }
+            // else { gait_state = 0; } 
             activity = "IDLE";
             gait_state = 0;
         }

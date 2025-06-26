@@ -75,11 +75,11 @@ void timerHandler(void *pvParameters) {
                 
                 uint8_t energyKcal = (uint8_t)(energyExpenditure + 0.5f); // round to nearest integer
                 send_LF_BR_EE_ble(tilt_count, breathingRateSmoothed, energyKcal);
-                Serial.printf("Sending data tilt count: %u, breathing rate: %u, energy expenditure: %u\n", tilt_count, breathingRateSmoothed, energyKcal);
+                Serial.printf("Walk time: %u, tilt count: %u, breathing rate: %u, energy expenditure: %u\n", walkTimeSec, tilt_count, breathingRateSmoothed, energyKcal);
                 tilt_count = 0;      
                 walkTimeSec = 0;       
             }
-            Serial.println("30 seconds passed");
+            Serial.println("60 seconds passed\n");
         }
         vTaskDelay(25 / portTICK_PERIOD_MS);
     }
