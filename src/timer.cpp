@@ -67,10 +67,10 @@ void timerHandler(void *pvParameters) {
                     energyExpenditure = energyExpenditure * 1.2;
                 }
                 else if (breathingRateSmoothed >= 20 && breathingRateSmoothed < 23) {
-                    energyExpenditure = energyExpenditure * 1.5;
+                    energyExpenditure = energyExpenditure * 1.35;
                 }
                 else if (breathingRateSmoothed >= 23) {
-                    energyExpenditure = energyExpenditure * 1.8;
+                    energyExpenditure = energyExpenditure * 1.5;
                 }
                 
                 uint8_t energyKcal = (uint8_t)(energyExpenditure + 0.5f); // round to nearest integer
