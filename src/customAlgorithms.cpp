@@ -20,7 +20,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
     int16_t maximum = -32765;
     int16_t minimum = 32765;
     int16_t range = 0;
-    int smoothingFactor = dummyHz; // int(IMU_BUFFER_HZ*2 /2);      // to remove high frequency noise
+    int smoothingFactor = dummyHz*2; // int(IMU_BUFFER_HZ*2 /2);      // to remove high frequency noise
     int decimationFactor = 1; // int(IMU_BUFFER_HZ/2); // apply decimation of approx 0.5s
     int smoothedArrayLength = (ADS_BUFFER_LEN)/decimationFactor;
     int16_t smoothedArray[smoothedArrayLength];         // middle 45s array is 100 samples long
