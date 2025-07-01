@@ -56,7 +56,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
     range = maximum - minimum;
     
     float breathingRate = 0;
-    if (range > 100) {
+    if (range > 50) {
     // Creating a buffer to store the distances (maximum 30 per minute)
         uint8_t cyclesDistances[30];
         uint8_t cyclesCount = 0;
@@ -79,9 +79,14 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
 
     // getting a portion of the above buffer that is filled with values
         uint8_t cyclesDistances2[cyclesCount];
+        Serial.print('\t');
+        Serial.print("distances: ");
         for (int i=0; i<cyclesCount; i++) {
             cyclesDistances2[i] = cyclesDistances[i];
+            Serial.print(cyclesDistances2[i]);
+            Serial.print(",");
         }
+        Serial.println("");
         // Number of items in the array
         int lt_length = sizeof(cyclesDistances2) / sizeof(cyclesDistances2[0]);
         // qsort - last parameter is a function pointer to the sort function
@@ -203,42 +208,59 @@ void addBreathingRate(uint8_t newRate, std::vector<uint8_t>& breathingRateBuffer
 uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer) {
     // Step 1: Collect all non-zero breathing rates
     std::vector<uint8_t> nonZeroRates;
+    Serial.print('\t');
+    Serial.print("BR values: ");
     for (uint8_t rate : breathingRateBuffer) {
         if (rate != 0) {
             nonZeroRates.push_back(rate);
+            Serial.print(rate);
+            Serial.print(",");
         }
     }
+    Serial.println("");
 
     // Step 2: Sort the non-zero rates in ascending order
-    // This is crucial to identify what constitutes the "middle" values.
     std::sort(nonZeroRates.begin(), nonZeroRates.end());
 
-    // Step 3: Check if there are enough non-zero values to find the middle 3
-    if (nonZeroRates.size() < 3) {
-        // If there are fewer than 3 non-zero values, we cannot average the "middle 3".
-        // Returning 0 indicates this condition wasn't met.
+    // Step 3: Check if there are enough non-zero values to average the middle 2
+    if (nonZeroRates.size() < 2) {
+        // If there are fewer than 2 non-zero values, we cannot average the "middle 2".
         return 0;
     }
 
-    // Step 4: Calculate the starting index for the middle 3 values.
-    // This formula effectively skips (N-3)/2 elements from the beginning
-    // to get to the start of the "middle 3" slice.
-    // Examples:
-    // - If size is 3: (3-3)/2 = 0. Starts at index 0. (takes 0, 1, 2)
-    // - If size is 4: (4-3)/2 = 0. Starts at index 0. (takes 0, 1, 2) -> Average of lowest 3
-    // - If size is 5: (5-3)/2 = 1. Starts at index 1. (takes 1, 2, 3) -> Average of true middle 3
-    // - If size is 6: (6-3)/2 = 1. Starts at index 1. (takes 1, 2, 3)
-    size_t startIndex = (nonZeroRates.size() - 3) / 2;
-
     uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
+    int count = 2;    // We are always averaging 2 values if we proceed
 
-    // Step 5: Sum the 3 middle values
-    sum += nonZeroRates[startIndex];
-    sum += nonZeroRates[startIndex + 1];
-    sum += nonZeroRates[startIndex + 2];
+    // Step 4: Determine the indices for the middle 2 values
+    size_t size = nonZeroRates.size();
+    size_t index1;
+    size_t index2;
+
+    if (size % 2 != 0) {
+        // If size is odd (e.g., 3, 5, 7): median and median+1
+        // Median index for odd size N is N/2 (integer division)
+        index1 = size / 2;
+        index2 = index1 + 1;
+        if (nonZeroRates[size-1] < nonZeroRates[size/2]) {
+            index2 = index1 - 1;
+        }
+        // Example: size = 5 -> median index = 2. index1 = 2, index2 = 3.
+        // Takes elements at index 2 and 3.
+    } else {
+        // If size is even (e.g., 2, 4, 6): the two middle values
+        // Middle two indices for even size N are N/2 - 1 and N/2
+        index1 = (size / 2) - 1;
+        index2 = size / 2;
+        // Example: size = 4 -> index1 = 1, index2 = 2.
+        // Takes elements at index 1 and 2.
+    }
+
+    // Step 5: Sum the 2 middle values
+    sum += nonZeroRates[index1];
+    sum += nonZeroRates[index2];
 
     // Step 6: Calculate the average (always divide by 3 now)
-    float average = static_cast<float>(sum) / 3.0f;
+    float average = static_cast<float>(sum) / 2.0f;
 
     // Step 7: Return the result as uint8_t (truncates decimals)
     return static_cast<uint8_t>(average);
