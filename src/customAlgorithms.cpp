@@ -199,6 +199,7 @@ void addBreathingRate(uint8_t newRate, std::vector<uint8_t>& breathingRateBuffer
     breathingRateBuffer.push_back(newRate);
 }
 
+
 uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer) {
     // Step 1: Collect all non-zero breathing rates
     std::vector<uint8_t> nonZeroRates;
@@ -209,28 +210,36 @@ uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer) {
     }
 
     // Step 2: Sort the non-zero rates in ascending order
+    // This is crucial to identify what constitutes the "middle" values.
     std::sort(nonZeroRates.begin(), nonZeroRates.end());
 
-    uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
-    int count = 0;
-
-    // Step 3: Determine how many of the lowest non-zero values to average
-    // Take the minimum of 3 or the actual number of non-zero rates available.
-    int num_elements_to_average = std::min((int)nonZeroRates.size(), 3);
-
-    // Step 4: Sum these lowest values
-    for (int i = 0; i < num_elements_to_average; ++i) {
-        sum += nonZeroRates[i];
-        count++; // Increment count for each value added to the sum
-    }
-
-    // Step 5: Calculate the average and return
-    if (count > 0) {
-        float average = static_cast<float>(sum) / count;
-        // Cast to uint8_t, which will truncate any decimal part (e.g., 7.5 becomes 7)
-        return static_cast<uint8_t>(average);
-    } else {
-        // Return 0 if no non-zero values were found in the buffer
+    // Step 3: Check if there are enough non-zero values to find the middle 3
+    if (nonZeroRates.size() < 3) {
+        // If there are fewer than 3 non-zero values, we cannot average the "middle 3".
+        // Returning 0 indicates this condition wasn't met.
         return 0;
     }
+
+    // Step 4: Calculate the starting index for the middle 3 values.
+    // This formula effectively skips (N-3)/2 elements from the beginning
+    // to get to the start of the "middle 3" slice.
+    // Examples:
+    // - If size is 3: (3-3)/2 = 0. Starts at index 0. (takes 0, 1, 2)
+    // - If size is 4: (4-3)/2 = 0. Starts at index 0. (takes 0, 1, 2) -> Average of lowest 3
+    // - If size is 5: (5-3)/2 = 1. Starts at index 1. (takes 1, 2, 3) -> Average of true middle 3
+    // - If size is 6: (6-3)/2 = 1. Starts at index 1. (takes 1, 2, 3)
+    size_t startIndex = (nonZeroRates.size() - 3) / 2;
+
+    uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
+
+    // Step 5: Sum the 3 middle values
+    sum += nonZeroRates[startIndex];
+    sum += nonZeroRates[startIndex + 1];
+    sum += nonZeroRates[startIndex + 2];
+
+    // Step 6: Calculate the average (always divide by 3 now)
+    float average = static_cast<float>(sum) / 3.0f;
+
+    // Step 7: Return the result as uint8_t (truncates decimals)
+    return static_cast<uint8_t>(average);
 }
