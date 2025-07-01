@@ -200,21 +200,37 @@ void addBreathingRate(uint8_t newRate, std::vector<uint8_t>& breathingRateBuffer
 }
 
 uint8_t getAverageBreathingRate(std::vector<uint8_t>& breathingRateBuffer) {
-    uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
-    int count = 0;
-
+    // Step 1: Collect all non-zero breathing rates
+    std::vector<uint8_t> nonZeroRates;
     for (uint8_t rate : breathingRateBuffer) {
         if (rate != 0) {
-            sum += rate;
-            count++;
+            nonZeroRates.push_back(rate);
         }
     }
 
+    // Step 2: Sort the non-zero rates in ascending order
+    std::sort(nonZeroRates.begin(), nonZeroRates.end());
+
+    uint32_t sum = 0; // Use uint32_t to prevent overflow for sum
+    int count = 0;
+
+    // Step 3: Determine how many of the lowest non-zero values to average
+    // Take the minimum of 3 or the actual number of non-zero rates available.
+    int num_elements_to_average = std::min((int)nonZeroRates.size(), 3);
+
+    // Step 4: Sum these lowest values
+    for (int i = 0; i < num_elements_to_average; ++i) {
+        sum += nonZeroRates[i];
+        count++; // Increment count for each value added to the sum
+    }
+
+    // Step 5: Calculate the average and return
     if (count > 0) {
-        float dummy = 0.0f;
-        dummy = static_cast<float>(sum) / count;
-        return (uint8_t)dummy;
+        float average = static_cast<float>(sum) / count;
+        // Cast to uint8_t, which will truncate any decimal part (e.g., 7.5 becomes 7)
+        return static_cast<uint8_t>(average);
     } else {
-        return 0; // Return 0 if no non-zero values are found
+        // Return 0 if no non-zero values were found in the buffer
+        return 0;
     }
 }

@@ -281,7 +281,7 @@ void measureAds1() {
         // Serial.println("");
 
         
-        if (max_accel < 2 && max_accel-min_accel >= 0.05 && max_accel-min_accel < 1) {
+        if (max_accel < 2 && max_accel-min_accel < 1) {
             breathingRate = calculateBR(adsBuffer);
         }
         else {

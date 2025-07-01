@@ -151,13 +151,13 @@ void createBLEServer(void) {
 
     /** Start the services when finished creating all Characteristics and Descriptors */
     pBaadService->start();
-    printf("1\n");
+    // printf("1\n");
 
     NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
-    printf("2\n");
+    // printf("2\n");
     /** Add the services to the advertisment data **/
     pAdvertising->addServiceUUID(pBaadService->getUUID());
-    printf("2\n");
+    // printf("2\n");
     pAdvertising->setManufacturerData(cfg->thing_name);
     // printf("2\n");
     /** If your device is battery powered you may consider setting scan response
