@@ -55,16 +55,19 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
     }
     range = maximum - minimum;
     
+    int minPeakDistance = 1.2*dummyHz; // 50BPM
+    int maxPeakDistance = 12*dummyHz; // 5BPM
+    
     float breathingRate = 0;
     if (range > 50) {
     // Creating a buffer to store the distances (maximum 30 per minute)
-        uint8_t cyclesDistances[30];
+        uint8_t cyclesDistances[60];
         uint8_t cyclesCount = 0;
         for (int i=smoothingFactor+2; i<smoothedArrayLength-2; i++) {
             if (smoothedArray[i] > smoothedArray[i-1] && smoothedArray[i] >= smoothedArray[i-2] && smoothedArray[i] >= smoothedArray[i+1] && smoothedArray[i] >= smoothedArray[i+2]) {
                 for (int j=i+1; j<smoothedArrayLength; j++) {
                     if (smoothedArray[j] > smoothedArray[j-1] && smoothedArray[j] >= smoothedArray[j-2] && smoothedArray[j] >= smoothedArray[j+1] && smoothedArray[j] >= smoothedArray[j+2]) {
-                        if ((j - i)*decimationFactor > 2*dummyHz && (j - i)*decimationFactor < 12*dummyHz) {
+                        if ((j - i)*decimationFactor > minPeakDistance && (j - i)*decimationFactor < maxPeakDistance) {
                             cyclesDistances[cyclesCount++] = (j - i)*decimationFactor;
                             // Serial.print(i);
                             // Serial.print(", ");
@@ -93,7 +96,7 @@ uint8_t calculateBR(int16_t inputArray[ADS_BUFFER_LEN]) {
         qsort(cyclesDistances2, lt_length, sizeof(cyclesDistances2[0]), sort_desc);
 
         float medianDistance = cyclesDistances2[int(cyclesCount/2)];
-        if (medianDistance > 20) {
+        if (medianDistance > minPeakDistance) {
             breathingRate = 60/(medianDistance/dummyHz);
         }
     }

@@ -275,13 +275,13 @@ void measureAds1() {
     // calculate breathing rate if user has been stable for more than 10seconds
     if (tenSecondCounter >= 100) {
         printf("min accel: %.2f, max accel: %.2f\n", min_accel, max_accel);;
-        // for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
-        //     Serial.printf("%d,", adsBuffer[i]);
-        // }
-        // Serial.println("");
+        for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+            Serial.printf("%d,", adsBuffer[i]);
+        }
+        Serial.println("");
 
         
-        if (max_accel < 2 && max_accel-min_accel < 1) {
+        if (max_accel < 3 && max_accel-min_accel < 2) {
             breathingRate = calculateBR(adsBuffer);
         }
         else {
