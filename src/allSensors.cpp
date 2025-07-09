@@ -21,7 +21,11 @@ float step_cadence = 0;
 const char* activity = "IDLE";
 uint8_t gait_state = 0;
 
-int16_t adsBuffer[ADS_BUFFER_LEN];
+int16_t adsBuffer1[ADS_BUFFER_LEN];
+int16_t adsBuffer2[ADS_BUFFER_LEN];
+int16_t imuXBuffer[ADS_BUFFER_LEN];
+int16_t imuYBuffer[ADS_BUFFER_LEN];
+int16_t imuZBuffer[ADS_BUFFER_LEN];
 uint16_t adsIndex = 0;
 uint8_t breathingRate = 0;
 const int BUFFER_SIZE = 6;
@@ -34,6 +38,10 @@ uint16_t isIdleCounter = 0;
 
 float max_accel = 0;
 float min_accel = 1000000;
+int16_t max_FSR1 = 0;
+int16_t min_FSR1 = 1000000;
+int16_t max_FSR2 = 0;
+int16_t min_FSR2 = 1000000;
 
 // uint8_t tilt_delay_counter = 0;
 // bool sec_window_passed = false;
@@ -248,7 +256,17 @@ void measureImu1() {
 
 void measureAds1() {
 #ifndef BLE_TEST        
-    allData.M_ads1 = ads1.continuous_readADC_SingleEnded(2);
+    allData.M_ads1 = ads1.readADC_SingleEnded(1);
+    max_FSR1 = std::max(allData.M_ads1, max_FSR1);
+    min_FSR1 = std::min(min_FSR1, allData.M_ads1);
+    allData.M_ads2 = ads1.readADC_SingleEnded(2);
+    max_FSR2 = std::max(allData.M_ads2, max_FSR2);
+    min_FSR2 = std::min(min_FSR2, allData.M_ads2);
+
+    // Serial.print(ads1.readADC_SingleEnded(1));
+    // Serial.print(", ");
+    // Serial.println(ads1.readADC_SingleEnded(2));
+    // allData.M_ads1 = ads1.readADC_SingleEnded(1);
 #else
     allData.M_ads1 = ble_test_int16t_value2;
     ble_test_int16t_value2 += 256;
@@ -263,11 +281,19 @@ void measureAds1() {
 
         if (adsIndex == ADS_BUFFER_LEN) {
             for (int i = 0; i < ADS_BUFFER_LEN-1; i++) {
-                adsBuffer[i] = adsBuffer[i+1];
+                adsBuffer1[i] = adsBuffer1[i+1];
+                adsBuffer2[i] = adsBuffer2[i+1];
+                imuXBuffer[i] = imuXBuffer[i+1];
+                imuYBuffer[i] = imuYBuffer[i+1];
+                imuZBuffer[i] = imuZBuffer[i+1];
             }
             adsIndex -= 1;
         }
-        adsBuffer[adsIndex] = allData.M_ads1;
+        adsBuffer1[adsIndex] = allData.M_ads1;
+        adsBuffer2[adsIndex] = allData.M_ads2;
+        imuXBuffer[adsIndex] = allData.M_gyro1[0];
+        imuYBuffer[adsIndex] = allData.M_gyro1[1];
+        imuZBuffer[adsIndex] = allData.M_gyro1[2];
         adsIndex += 1;
         tenSecondCounter += 1;
     }
@@ -275,14 +301,37 @@ void measureAds1() {
     // calculate breathing rate if user has been stable for more than 10seconds
     if (tenSecondCounter >= 100) {
         printf("min accel: %.2f, max accel: %.2f\n", min_accel, max_accel);;
-        for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
-            Serial.printf("%d,", adsBuffer[i]);
-        }
-        Serial.println("");
 
-        
         if (max_accel < 3 && max_accel-min_accel < 2) {
-            breathingRate = calculateBR(adsBuffer);
+            if (max_FSR1 > 2000) { 
+                Serial.println("ain1_voltage_divider");
+                breathingRate = calculateBR(adsBuffer1);
+                for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+                    Serial.printf("%d,", adsBuffer1[i]);
+                }
+                Serial.println("");
+                for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+                    Serial.printf("%d,", imuXBuffer[i]);
+                }
+                Serial.println("");
+                for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+                    Serial.printf("%d,", imuYBuffer[i]);
+                }
+                Serial.println("");
+                for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+                    Serial.printf("%d,", imuZBuffer[i]);
+                }
+                Serial.println("");
+
+            }
+            else {
+                Serial.println("ain2_amplifier");
+                breathingRate = calculateBR(adsBuffer2);
+                for (size_t i=0; i<ADS_BUFFER_LEN-1; i+=1) {
+                    Serial.printf("%d,", adsBuffer2[i]);
+                }
+                Serial.println("");
+            }
         }
         else {
             breathingRate = 0;
@@ -317,6 +366,11 @@ void measureAds1() {
         tenSecondCounter = 0;
         max_accel = 0;
         min_accel = 1000000;
+
+        max_FSR1 = 0;
+        min_FSR1 = 1000000;
+        max_FSR2 = 0;
+        min_FSR2 = 1000000;
     }
 
 }
