@@ -37,21 +37,21 @@ void initIRQTask() {
                             IRQ_TASK_STACK,  // stack size of task
                             (void *)1,       // parameter of the task
                             IRQ_TASK_PRI,    // priority of the task
-                            &irqHandlerTask, // task handle
+                            &TaskIrq, // task handle
                             IRQ_TASK_CORE);  // CPU core
     ESP_LOGI(TAG, "IRQ Handler initialized...");
 }
 
 void notifyIrq(uint32_t uvalue) {
-    if (irqHandlerTask == NULL) {
+    if (TaskIrq == NULL) {
         return;
     }
-    xTaskNotifyFromISR(irqHandlerTask, uvalue, eSetBits, NULL);
+    xTaskNotifyFromISR(TaskIrq, uvalue, eSetBits, NULL);
 }
 
 void deleteIRQTask() {
-    if (irqHandlerTask != NULL) {
-        vTaskDelete(irqHandlerTask);
+    if (TaskIrq != NULL) {
+        vTaskDelete(TaskIrq);
     }
 }
 

@@ -4,57 +4,27 @@
 #include <Arduino.h>
 #include <esp_coexist.h>
 #include <Wire.h>
-#include <SPI.h>
-
 #include "timer.h"
-
 #include "irqhandler.h"
 #include "mallocator.h"
 #include "bleData.h"
 #include "resetCheck.h"
-#include "bleServerHub.h"
-#include <Preferences.h>
 #include "allSensors.h"
 #include "customAlgorithms.h"
-#include <esp_timer.h>
-#include "esp_sleep.h"
 #include "led.h"
-
 
 static const char TAG[] = __FILE__;
 
-TaskHandle_t irqHandlerTask = NULL;
-TaskHandle_t TaskBle_h = NULL;
+TaskHandle_t TaskIrq = NULL;
 TaskHandle_t TaskData_h = NULL;
 TaskHandle_t TaskTimer_h = NULL;
-TaskHandle_t TaskTimer2_h = NULL;
 TaskHandle_t TaskSensors_h = NULL;
+TaskHandle_t TaskUartSlave_h = NULL;
+TaskHandle_t TaskUartMaster_h = NULL;
 
 All_data_t allData; 
-BleDataConvert bledata;
-
 Kalman_t kalman;
 
-configData_t *cfg;
-
-extern Preferences preferences;
-
-SPIClass mySPI(SPI);
-
-void makeThingName() {
-    byte mac[6];
-    byte macBle[6];
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    esp_read_mac(macBle, ESP_MAC_BT);
-    sprintf(cfg->thing_name, "BS%02X%02X%02X%02X%02X%02X%02X",
-            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], macBle[5]);
-    Serial.printf("\n\ndevice id: %s\n", cfg->thing_name);
-}
-
-void initData() {
-    cfg = ALLOCATION(configData_t, 1);
-	ESP_LOGI(TAG, "Data initialized...");
-}
 
 void setup() {
 
@@ -63,90 +33,54 @@ void setup() {
 	Serial.println("(Serial: ON)");
 	
 	ESP_LOGI(TAG, "\n\n-------------- Initializing --------------\n");
-	initData();
-	makeThingName();
 	
-	// bool dummy;
-	// dummy = Wire.begin(static_cast<int>(SDA_PIN), static_cast<int>(SCL_PIN), static_cast<uint32_t>(400000));
-	// Serial.println(dummy);	
-	// Serial.print("MOSI: ");
-	// Serial.println(MOSI);
-	// Serial.print("MISO: ");
-	// Serial.println(MISO);
-	// Serial.print("SCK: ");
-	// Serial.println(SCK);
-	// Serial.print("SS: ");
-	// Serial.println(SS);  
+	bool dummy0;
+	dummy0 = Wire.begin(static_cast<int>(SDA_PIN), static_cast<int>(SCL_PIN), static_cast<uint32_t>(400000));
+	Serial.println(dummy0);
 	bool dummy1;
 	dummy1 = Wire1.begin(static_cast<int>(SDA2_PIN), static_cast<int>(SCL2_PIN), static_cast<uint32_t>(400000));
-	// Serial.println(dummy1);
+	Serial.println(dummy1);
 
-	byte error, address;
-	int nDevices;
-	Serial.println("Scanning...");
-	nDevices = 0;
-	for(address = 1; address < 127; address++ ) {
-		Wire1.beginTransmission(address);
-		error = Wire1.endTransmission();
-		if (error == 0) {
-		Serial.print("I2C device found at address 0x");
-		if (address<16) {
-			Serial.print("0");
-		}
-		Serial.println(address,HEX);
-		nDevices++;
-		}
-		else if (error==4) {
-		Serial.print("Unknow error at address 0x");
-		if (address<16) {
-			Serial.print("0");
-		}
-		Serial.println(address,HEX);
-		}    
-	}
-	if (nDevices == 0) {
-		Serial.println("No I2C devices found\n");
-	}
-	else {
-		Serial.println("done\n");
-	}
+	// byte error, address;
+	// int nDevices;
+	// Serial.println("Scanning...");
+	// nDevices = 0;
+	// for(address = 1; address < 127; address++ ) {
+	// 	Wire1.beginTransmission(address);
+	// 	error = Wire1.endTransmission();
+	// 	if (error == 0) {
+	// 	Serial.print("I2C device found at address 0x");
+	// 	if (address<16) {
+	// 		Serial.print("0");
+	// 	}
+	// 	Serial.println(address,HEX);
+	// 	nDevices++;
+	// 	}
+	// 	else if (error==4) {
+	// 	Serial.print("Unknow error at address 0x");
+	// 	if (address<16) {
+	// 		Serial.print("0");
+	// 	}
+	// 	Serial.println(address,HEX);
+	// 	}    
+	// }
+	// if (nDevices == 0) {
+	// 	Serial.println("No I2C devices found\n");
+	// }
+	// else {
+	// 	Serial.println("done\n");
+	// }
 	
-    pinMode(CS_PIN, OUTPUT);
-    digitalWrite(CS_PIN, HIGH); // Set CS HIGH initially
-
-    mySPI.begin(SCLK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
-    // mySPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0)); // Mode 0 with 1 MHz
-    digitalWrite(CS_PIN, LOW);
-    mySPI.transfer(0x75 | 0x80); // 0x80 sets MSB for a read operation
-    uint8_t who_am_i = mySPI.transfer(0x00);
-    digitalWrite(CS_PIN, HIGH);
-    Serial.print("WHO_AM_I: ");
-    Serial.println(who_am_i, HEX);
-
-	delay(100);
-	
-	// initIRQTask();
-    // delay(500);
 
 	delay(100);
 	initAllSensors();
 
-    // delay(100);
-	// initTimer2();
-
     delay(100);
 	initTimer();
-
-	delay(100);
-
-    initBleServer();
-	
-	delay(100);
 
 	initKalman(&kalman);
 
 	initLed();
-	// turnLedOn(LED_PIN_BL);
 	turnLedOn(LED_PIN_GR);
 
 	vTaskDelete(NULL);
