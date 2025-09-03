@@ -7,7 +7,6 @@
 #include "timer.h"
 #include "irqhandler.h"
 #include "mallocator.h"
-#include "bleData.h"
 #include "resetCheck.h"
 #include "allSensors.h"
 #include "customAlgorithms.h"

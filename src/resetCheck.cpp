@@ -6,13 +6,6 @@ static const char TAG[] = __FILE__;
 
 JsonObject reset_json;
 
-void restartApp(reset_reason_t reason) {
-    vTaskDelay(1500 / portTICK_PERIOD_MS);
-
-	ESP_LOGE(TAG, "restart_app reason: [%d]", reason);
+void restartApp() {
 	ESP.restart();
-}
-
-void deviceResetManu() {
-    restartApp(rst_device_reset_manu);
 }

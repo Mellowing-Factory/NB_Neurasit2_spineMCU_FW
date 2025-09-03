@@ -53,5 +53,5 @@ float tilt_calculation(float ax, float ay, float az, float gyro_y) {
     float filtered_pitch = Kalman_Update(&kalman, accel_pitch, gyro_y, dt);
     // printf("Kalman Pitch: %.2f\n", filtered_pitch);
 
-    return filtered_pitch
+    return filtered_pitch;
 }

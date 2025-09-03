@@ -14,6 +14,14 @@
 #define ACCEL_FSR 4
 
 void initAllSensors();
+void initImu0();
+void initImu1();
+void initImu2();
+void initImu3();
+void measureImu0();
+void measureImu1();
+void measureImu2();
+void measureImu3();
 
 
 #endif

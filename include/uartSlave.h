@@ -3,7 +3,7 @@
 
 #include "globals.h"
 
-#define MESSAGE_LENGTH = 22;
+#define MESSAGE_LENGTH 22
 
 bool initUartSlave();
 

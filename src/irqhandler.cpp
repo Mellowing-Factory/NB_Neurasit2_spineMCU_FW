@@ -26,7 +26,7 @@ void irqHandler(void *pvParameters) {
             // sendSensorData();
         }
         if (InterruptStatus & RESET_MANU) {
-            deviceResetManu();
+            restartApp();
         }
     }
 }

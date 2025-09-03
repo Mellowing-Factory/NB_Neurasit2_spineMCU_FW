@@ -31,12 +31,18 @@
 /*
    GPIO pin map
 */
-#define LED_PIN_GR     uint8_t(41)   // Green LED
-#define LED_PIN_BL     uint8_t(42)  // Blue LED
+#define LED_PIN_GR 41
+#define LED_PIN_BL 42
 
 // SDA_PIN, SCL_PIN, SLAVE_RX, SLAVE_TX
-#define SDA2_PIN 12
-#define SCL2_PIN 11
+
+#define SLAVE_TX  13
+#define SLAVE_RX  12
+
+#define SDA_PIN   11
+#define SCL_PIN   10
+#define SDA2_PIN  37
+#define SCL2_PIN  38
 
 /*
     Timer Configurations 
