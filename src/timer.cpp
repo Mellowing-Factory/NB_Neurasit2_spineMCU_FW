@@ -24,7 +24,7 @@ void timerHandler(void *pvParameters) {
             portEXIT_CRITICAL(&timerMux);
             sendData = true;
         }
-        Serial.println("0.1 seconds passed\n");
+        // Serial.println("0.1 seconds passed\n");
         vTaskDelay(5 / portTICK_PERIOD_MS);
     }
 }

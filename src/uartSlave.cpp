@@ -24,14 +24,14 @@ void uartSlaveHandler(void *pvParameters) {
 
         if (sendData) {        
             Serial1.write(message, MESSAGE_LENGTH);
-            sendData = false;
             printf("Pitch0: %.2f, Pitch1: %.2f, Pitch2: %.2f, Pitch3: %.2f\n", allData.pitch0, allData.pitch1, allData.pitch2, allData.pitch3);
+            sendData = false;
         }
         vTaskDelay(75 / portTICK_RATE_MS);
     }
 }
 
-bool initUartSlave() {
+void initUartSlave() {
 
     Serial1.begin(115200, SERIAL_8N1, SLAVE_RX, SLAVE_TX);
   	delay(100);

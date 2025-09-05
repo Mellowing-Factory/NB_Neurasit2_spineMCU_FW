@@ -5,6 +5,6 @@
 
 #define MESSAGE_LENGTH 22
 
-bool initUartSlave();
+void initUartSlave();
 
 #endif

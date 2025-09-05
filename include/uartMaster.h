@@ -1,5 +1,5 @@
-#ifndef _ESP_SLAVE_H
-#define _ESP_SLAVE_H
+#ifndef _ESP_MASTER_H
+#define _ESP_MASTER_H
 
 #include "globals.h"
 

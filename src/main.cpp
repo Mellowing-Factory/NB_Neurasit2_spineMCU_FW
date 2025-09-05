@@ -11,6 +11,8 @@
 #include "allSensors.h"
 #include "customAlgorithms.h"
 #include "led.h"
+#include "uartMaster.h"
+#include "uartSlave.h"
 
 static const char TAG[] = __FILE__;
 
@@ -81,6 +83,8 @@ void setup() {
 
 	initLed();
 	turnLedOn(LED_PIN_GR);
+
+	initUartSlave();
 
 	vTaskDelete(NULL);
 }
