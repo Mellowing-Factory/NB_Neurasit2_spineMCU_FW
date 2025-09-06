@@ -24,7 +24,8 @@ void uartSlaveHandler(void *pvParameters) {
 
         if (sendData) {        
             Serial1.write(message, MESSAGE_LENGTH);
-            printf("Pitch0: %.2f, Pitch1: %.2f, Pitch2: %.2f, Pitch3: %.2f\n", allData.roll0, allData.roll1, allData.roll2, allData.roll3);
+            // printf("Roll0: %.2f, Roll1: %.2f, Roll2: %.2f, Roll3: %.2f\n", allData.roll0, allData.roll1, allData.roll2, allData.roll3);
+            printf("Pitch0: %.2f, Pitch1: %.2f, Pitch2: %.2f, Pitch3: %.2f\n", allData.pitch0, allData.pitch1, allData.pitch2, allData.pitch3);
             sendData = false;
         }
         vTaskDelay(75 / portTICK_RATE_MS);

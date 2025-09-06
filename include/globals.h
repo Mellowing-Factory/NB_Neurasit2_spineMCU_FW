@@ -110,6 +110,10 @@ typedef struct {
     float pitch1 = 0;
     float pitch2 = 0;
     float pitch3 = 0;    
+    float roll0 = 0;
+    float roll1 = 0;
+    float roll2 = 0;
+    float roll3 = 0;    
 } All_data_t;
 
 #include <Arduino.h>
