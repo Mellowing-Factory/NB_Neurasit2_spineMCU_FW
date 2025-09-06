@@ -2,7 +2,10 @@
 
 static const char TAG[] = __FILE__;
 
-extern Kalman_t kalman;
+extern Kalman_t kalman0;
+extern Kalman_t kalman1;
+extern Kalman_t kalman2;
+extern Kalman_t kalman3;
 float dt = 0.05f; // 100ms loop
 
 void initKalman(Kalman_t* kf) {
@@ -45,12 +48,24 @@ float Kalman_Update(Kalman_t* kf, float newAngle, float newRate, float dt) {
     return kf->angle;
 }
 
-float tilt_calculation(float ax, float ay, float az, float gyro_y) {
+float tilt_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum) {
     // Estimate pitch from accelerometer
     float accel_pitch = atan2f(ax, sqrtf(ay * ay + az * az)) * 180.0f / M_PI;
 
+    float filtered_pitch = 0;
     // Gyro is in deg/sec
-    float filtered_pitch = Kalman_Update(&kalman, accel_pitch, gyro_y, dt);
+    if (kalmanNum == 0) {
+        filtered_pitch = Kalman_Update(&kalman0, accel_pitch, gyro_y, dt);
+    }
+    else if (kalmanNum == 1) {
+        filtered_pitch = Kalman_Update(&kalman1, accel_pitch, gyro_y, dt);
+    }
+    else if (kalmanNum == 2) {
+        filtered_pitch = Kalman_Update(&kalman2, accel_pitch, gyro_y, dt);
+    }
+    else if (kalmanNum == 3) {
+        filtered_pitch = Kalman_Update(&kalman3, accel_pitch, gyro_y, dt);
+    }
     // printf("Kalman Pitch: %.2f\n", filtered_pitch);
 
     return filtered_pitch;

@@ -24,7 +24,10 @@ TaskHandle_t TaskUartSlave_h = NULL;
 TaskHandle_t TaskUartMaster_h = NULL;
 
 All_data_t allData; 
-Kalman_t kalman;
+Kalman_t kalman0;
+Kalman_t kalman1;
+Kalman_t kalman2;
+Kalman_t kalman3;
 
 
 void setup() {
@@ -79,7 +82,10 @@ void setup() {
     delay(100);
 	initTimer();
 
-	initKalman(&kalman);
+	initKalman(&kalman0);
+	initKalman(&kalman1);
+	initKalman(&kalman2);
+	initKalman(&kalman3);
 
 	initLed();
 	turnLedOn(LED_PIN_GR);

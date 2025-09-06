@@ -93,7 +93,7 @@ void measureImu0() {
     float accel_y_g = imu_event0.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event0.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
     float gyro_y_dps = imu_event0.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch0 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
+    allData.pitch0 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 0);
 }
 
 void initImu1() {
@@ -142,7 +142,7 @@ void measureImu1() {
     float accel_y_g = imu_event1.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event1.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
     float gyro_y_dps = imu_event1.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch1 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
+    allData.pitch1 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 1);
 }
 
 void initImu2() {
@@ -191,7 +191,7 @@ void measureImu2() {
     float accel_y_g = imu_event2.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event2.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
     float gyro_y_dps = imu_event2.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch1 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
+    allData.pitch2 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 2);
 }
 
 void initImu3() {
@@ -240,5 +240,5 @@ void measureImu3() {
     float accel_y_g = imu_event3.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event3.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
     float gyro_y_dps = imu_event3.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch1 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps);
+    allData.pitch3 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 3);
 }
