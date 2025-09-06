@@ -17,14 +17,14 @@ void uartSlaveHandler(void *pvParameters) {
         message[5] = 0;
     
         // Copy floats directly to message buffer
-        memcpy(&message[6], &allData.pitch0, sizeof(float));   // bytes 6-9
-        memcpy(&message[10], &allData.pitch1, sizeof(float));  // bytes 10-13
-        memcpy(&message[14], &allData.pitch2, sizeof(float));  // bytes 14-17
-        memcpy(&message[18], &allData.pitch3, sizeof(float));  // bytes 18-21
+        memcpy(&message[6], &allData.roll0, sizeof(float));   // bytes 6-9
+        memcpy(&message[10], &allData.roll1, sizeof(float));  // bytes 10-13
+        memcpy(&message[14], &allData.roll2, sizeof(float));  // bytes 14-17
+        memcpy(&message[18], &allData.roll3, sizeof(float));  // bytes 18-21
 
         if (sendData) {        
             Serial1.write(message, MESSAGE_LENGTH);
-            printf("Pitch0: %.2f, Pitch1: %.2f, Pitch2: %.2f, Pitch3: %.2f\n", allData.pitch0, allData.pitch1, allData.pitch2, allData.pitch3);
+            printf("Pitch0: %.2f, Pitch1: %.2f, Pitch2: %.2f, Pitch3: %.2f\n", allData.roll0, allData.roll1, allData.roll2, allData.roll3);
             sendData = false;
         }
         vTaskDelay(75 / portTICK_RATE_MS);

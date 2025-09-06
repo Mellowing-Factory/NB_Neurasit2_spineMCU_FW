@@ -18,6 +18,7 @@ typedef struct {
 
 void initKalman(Kalman_t* kf);
 void setupBreathingRateBuffer(std::vector<uint8_t>& breathingRateBuffer);
-float tilt_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum);
+float pitch_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum);
+float roll_calculation(float ax, float ay, float az, float gyro_x, int kalmanNum);
 
 #endif

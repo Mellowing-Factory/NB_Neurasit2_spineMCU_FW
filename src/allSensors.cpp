@@ -8,18 +8,23 @@ ICM42670 IMU2(Wire1, 0);
 ICM42670 IMU3(Wire1, 1);
 
 extern All_data_t allData;
+extern bool sendData;
+bool calcAngles = false;
 
 bool imu_valid = false;
 int handler_delay = 1000/GYRO_SR;
 
 void allSensorsHandler(void *pvParameters) {
     while (1) {
-        measureImu0();
-        measureImu1();
-        measureImu2();
-        measureImu3();
-
-        vTaskDelay(50/portTICK_PERIOD_MS);
+        if (calcAngles) {
+            measureImu0();
+            measureImu1();
+            measureImu2();
+            measureImu3();
+            sendData = true;
+            calcAngles = false;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
 
@@ -92,8 +97,9 @@ void measureImu0() {
     float accel_x_g = imu_event0.accel[0] / 8192.0f;  // 2g range → 16384 LSB/g
     float accel_y_g = imu_event0.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event0.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
-    float gyro_y_dps = imu_event0.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch0 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 0);
+    float gyro_x_dps = imu_event0.gyro[0] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
+    float gyro_y_dps = imu_event0.gyro[1] / 65.5f;
+    allData.roll0 = roll_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_x_dps, 0);
 }
 
 void initImu1() {
@@ -141,8 +147,9 @@ void measureImu1() {
     float accel_x_g = imu_event1.accel[0] / 8192.0f;  // 2g range → 16384 LSB/g
     float accel_y_g = imu_event1.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event1.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
-    float gyro_y_dps = imu_event1.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch1 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 1);
+    float gyro_x_dps = imu_event0.gyro[0] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
+    float gyro_y_dps = imu_event0.gyro[1] / 65.5f;
+    allData.roll1 = roll_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_x_dps, 1);
 }
 
 void initImu2() {
@@ -190,8 +197,9 @@ void measureImu2() {
     float accel_x_g = imu_event2.accel[0] / 8192.0f;  // 2g range → 16384 LSB/g
     float accel_y_g = imu_event2.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event2.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
-    float gyro_y_dps = imu_event2.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch2 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 2);
+    float gyro_x_dps = imu_event0.gyro[0] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
+    float gyro_y_dps = imu_event0.gyro[1] / 65.5f;
+    allData.roll2 = roll_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_x_dps, 2);
 }
 
 void initImu3() {
@@ -239,6 +247,7 @@ void measureImu3() {
     float accel_x_g = imu_event3.accel[0] / 8192.0f;  // 2g range → 16384 LSB/g
     float accel_y_g = imu_event3.accel[1] / 8192.0f;  // 16g range -> 2048
     float accel_z_g = imu_event3.accel[2] / 8192.0f;  // 4g range -> 8192 LSB/g
-    float gyro_y_dps = imu_event3.gyro[1] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
-    allData.pitch3 = tilt_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_y_dps, 3);
+    float gyro_x_dps = imu_event0.gyro[0] / 65.5f;    // 250 dps range → 131 LSB/(°/s)
+    float gyro_y_dps = imu_event0.gyro[1] / 65.5f;
+    allData.roll3 = roll_calculation(accel_x_g, accel_y_g, accel_z_g, gyro_x_dps, 3);
 }

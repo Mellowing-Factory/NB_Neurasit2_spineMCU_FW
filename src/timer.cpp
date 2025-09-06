@@ -7,7 +7,7 @@ hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile int interruptCounter;
 
-extern bool sendData;
+extern bool calcAngles;
 
 void IRAM_ATTR onTimer() {
     portENTER_CRITICAL_ISR(&timerMux);
@@ -22,7 +22,7 @@ void timerHandler(void *pvParameters) {
             portENTER_CRITICAL(&timerMux);
             interruptCounter--;
             portEXIT_CRITICAL(&timerMux);
-            sendData = true;
+            calcAngles = true;
         }
         // Serial.println("0.1 seconds passed\n");
         vTaskDelay(5 / portTICK_PERIOD_MS);

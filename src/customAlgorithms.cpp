@@ -48,10 +48,9 @@ float Kalman_Update(Kalman_t* kf, float newAngle, float newRate, float dt) {
     return kf->angle;
 }
 
-float tilt_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum) {
+float pitch_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum) {
     // Estimate pitch from accelerometer
     float accel_pitch = atan2f(ax, sqrtf(ay * ay + az * az)) * 180.0f / M_PI;
-
     float filtered_pitch = 0;
     // Gyro is in deg/sec
     if (kalmanNum == 0) {
@@ -69,4 +68,24 @@ float tilt_calculation(float ax, float ay, float az, float gyro_y, int kalmanNum
     // printf("Kalman Pitch: %.2f\n", filtered_pitch);
 
     return filtered_pitch;
+}
+
+float roll_calculation(float ax, float ay, float az, float gyro_x, int kalmanNum) {
+    // Roll calculation
+    float accel_roll = atan2f(ay, sqrtf(ax * ax + az * az)) * 180.0f / M_PI;
+    float filtered_roll = 0;
+    if (kalmanNum == 0) {
+        filtered_roll = Kalman_Update(&kalman0, accel_roll, gyro_x, dt);
+    }
+    else if (kalmanNum == 1) {
+        filtered_roll = Kalman_Update(&kalman1, accel_roll, gyro_x, dt);
+    }
+    else if (kalmanNum == 2) {
+        filtered_roll = Kalman_Update(&kalman2, accel_roll, gyro_x, dt);
+    }
+    else if (kalmanNum == 3) {
+        filtered_roll = Kalman_Update(&kalman3, accel_roll, gyro_x, dt);
+    }
+    
+    return filtered_roll;
 }
